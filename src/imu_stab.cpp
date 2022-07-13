@@ -66,13 +66,10 @@ Matrix3f RollPitch::RotationMatrixFromAccel(Vector3f acc) {
 
     I3 = Matrix3f::Identity();
     accn = acc/acc.norm();
-    //ROS_INFO("accn, x: %f, y:%f, z:%f",accn(0), accn(1), accn(2));
     
     v = ref_.cross(acc);
-    //ROS_INFO("v, size: %d, x:%f, y:%f, z:%f",v.size(), v(0), v(1), v(2));
     s = v.norm();
     c = ref_.dot(acc);
-    //ROS_INFO("cos: %f, sin:%f", c, s);
     vx << 0, -v(2), v(1),
 	  v(2),0,-v(0),
 	  -v(1),v(0),0;
@@ -91,7 +88,6 @@ tf::Quaternion RollPitch::RotationMatrixToQuaternions(Matrix3f R) {
     y = (R(0,2) - R(2,0)) / w4 ;
     z = (R(1,0) - R(0,1)) / w4 ;
 
-    //ROS_INFO("quat, x: %f, y:%f, z:%f, w:%f",x,y,z,w);
     tf::Quaternion q(x,y,z,w);
     return q;
 }
@@ -110,72 +106,11 @@ void RollPitch::accelCallback(const sensor_msgs::ImuPtr& msg) {
     Vector3f acc(msg->linear_acceleration.x,
                         msg->linear_acceleration.y,
                         msg->linear_acceleration.z);
-    //ROS_INFO("acc, x: %f, y:%f, z:%f",acc(0), acc(1), acc(2));
-    //ROS_INFO("ref_, x: %f, y:%f, z:%f",ref_(0), ref_(1), ref_(2));
 
     R = RollPitch::RotationMatrixFromAccel(acc);
     q = RollPitch::RotationMatrixToQuaternions(R);
     RollPitch::TFPublisher(q);
 }
-
-/*RollPitch::getA(r, p, dr, dp, dy) {
-    float r_dr, r_dp, p_dr, p_dp;
-    r_dr = (dp*std::cos(r) - dy*sin(r))*std::tan(p)
-    r_dp = (1/(std::cos(p)*std::cos(p))) * (dp*std::sin(r) + dy*std::cos(r))
-    p_dr = - dp*std::sin(r) - dy*std::cos(r)
-    p_dp = 0;
-    A << r_dr, r_dp,
-         p_dr, p_dp;
-}
-
-RollPitch::getC(r, p) {
-    float c00, c01, c10, c11, c20, c21;
-    c00 = 0;
-    c01 = g*std::cos(p);
-    c10 = -g*std::cos(r)*std::cos(p);
-    c11 = g*std::sin(r)*std::sin(p);
-    c20 = -g*std::sin(r)*std::cos(p);
-    c21 = g*std::cos(p)*std::cos(r);
-    C << c00, c01,
-         c10, c11,
-	 c20, c21;
-}
-
-RollPitch::getH(r, p) {
-   float h0,h1,h2;
-   h0 = g*std::sin(p);
-   h1 = -g*std::cos(p)*std::sin(r);
-   h2 = -g*std::cos(p)*std::cos(r);
-   H << h0,
-        h1,
-	h2;
-}
-
-RollPitch::InitialiazeEKF() {
-    Vector2f x(0);
-    Matrix2f A;
-    Matrix2f H;
-}
-
-RollPitch::getF(r, p, dr, dp, dy) {
-    float f0, f1;
-    f0 = dr + dp*std::cos(dr) + dy*std::cos(r)*std::tan(p);
-    f1 = dp*std::cos(r) - dy*std::sin(r);
-    F << f0,
-         f1;
-}
-
-RollPitch::Predict(dr, dp, dy, Ts) {
-    RollPitch::getF(X(0),X(1),dr,dp,dy);
-    X = X + Ts*F;
-    P = P + Ts*(A*P + P*A^T + Q);
-}
-
-RollPitch::Update() {
-    K = P*C^T*(CPC^T + R).inv();
-    X = X + K*(y - H);
-    P = (I - K*C)*P;
-}*/
 
 
 int main(int argc, char * argv[]) {
