@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<launch>
+<arg name="use_sim_time"  default="false" />
+    <node pkg="occupancy_segmentation" name="occ_segmentation" type="occupancy_segmentation_node" output="screen">
+        <param name="/use_sim_time" type="bool" value="$(arg use_sim_time)" />
+        <param name="map_frame" type="string" value="camera_gravity"/>
+        <!--Resolution of the map in pixel per meter.-->
+        <param name="map_resolution" type="double" value="0.25"/>
+        <!--Size of the map in meters.-->
+        <param name="map_x_size" type="double" value="20."/>
+        <param name="map_y_size" type="double" value="20."/>
+        <!--Scaling of the height to be used in the occupancy map.-->
+        <!--Occupancy maps support value between 0 and 100.-->
+        <!--"height_scale" remaps the relative height of the points.-->
+        <!--Formula used: 50 + pc.point.z / height_scale -->
+        <param name="~height_scale" type="double" value="0.04"/> 
+        <remap from="~pc_in" to="/camera/depth/color/points"/>
+        <!--remap from="occupancy_map" to=""/-->
+    </node>
+</launch>
+

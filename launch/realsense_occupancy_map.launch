@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<launch>
+<arg name="use_sim_time"  default="false" />
+    <include file="$(find occupancy_segmentation)/launch/segment_pointcloud.launch">
+        <arg name="use_sim_time"  value="$(arg use_sim_time)" /> 
+    </include>
+    <include file="$(find occupancy_segmentation)/launch/imu_fuse.launch">
+        <arg name="use_sim_time"  value="$(arg use_sim_time)" /> 
+    </include>
+    <include file="$(find occupancy_segmentation)/launch/gravity_tf.launch">
+        <arg name="use_sim_time"  value="$(arg use_sim_time)" /> 
+    </include>
+    <node pkg="imu_filter_madgwick" name="imu_filter" type="imu_filter_node">
+        <param name="/use_sime_time"  type="bool"    value="$(arg use_sim_time)"/>
+        <param name="use_mag"         type="bool"    value="false"/>
+        <param name="fixed_frame"     type="string"  value="camera_accel_gravity_frame"/>
+        <param name="reverse_tf"      type="bool"    value="true"/>
+    </node>
+</launch>
+    
